@@ -1,0 +1,9 @@
+# Local tooling / agent metadata
+.claude/
+.superpowers/
+
+# Common local temp/log artifacts
+*.log
+*.pid
+.DS_Store
+Thumbs.db

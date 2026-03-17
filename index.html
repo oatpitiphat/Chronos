@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChronosInTime</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f64f59 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #app {
+      text-align: center;
+      padding: 24px;
+    }
+
+    .heading {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 20px;
+    }
+
+    .total-days {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 40px;
+    }
+
+    .total-days-num {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: clamp(2.4rem, 6vw, 4.8rem);
+      color: #ffffff;
+      line-height: 1;
+    }
+
+    .total-days-lbl {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(0.6rem, 1.5vw, 0.85rem);
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 2px;
+    }
+
+    .units {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .num {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: clamp(2rem, 5vw, 4rem);
+      color: #ffffff;
+      line-height: 1;
+      min-width: 2ch;
+      display: block;
+    }
+
+    .lbl {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(0.6rem, 1.5vw, 0.85rem);
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Mobile: wrap into 2 rows of 3 */
+    @media (max-width: 599px) {
+      .units {
+        gap: 20px 24px;
+      }
+      .unit {
+        width: calc(33.33% - 16px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <p class="heading">✨ WE'VE BEEN IN LOVE FOR ✨</p>
+    <div class="total-days">
+      <span id="u-total-days" class="total-days-num">0</span>
+      <span class="total-days-lbl">DAYS TOGETHER</span>
+    </div>
+    <div class="units">
+      <div class="unit"><span id="u-years"  class="num">00</span><span class="lbl">Years</span></div>
+      <div class="unit"><span id="u-months" class="num">00</span><span class="lbl">Months</span></div>
+      <div class="unit"><span id="u-days"   class="num">00</span><span class="lbl">Days</span></div>
+      <div class="unit"><span id="u-hours"  class="num">00</span><span class="lbl">Hours</span></div>
+      <div class="unit"><span id="u-mins"   class="num">00</span><span class="lbl">Minutes</span></div>
+      <div class="unit"><span id="u-secs"   class="num">00</span><span class="lbl">Seconds</span></div>
+    </div>
+  </div>
+
+  <script>
+    const START_DATE = new Date('2014-05-07T00:00:00');
+
+    function calcElapsed(start, now) {
+      let years = 0;
+      let anniversaryDate = new Date(start);
+      anniversaryDate.setFullYear(start.getFullYear() + 1);
+      while (anniversaryDate <= now) {
+        years++;
+        anniversaryDate = new Date(start);
+        anniversaryDate.setFullYear(start.getFullYear() + years + 1);
+      }
+      // anniversaryDate is now one year ahead — step back to the last anniversary
+      const lastAnniversary = new Date(start);
+      lastAnniversary.setFullYear(start.getFullYear() + years);
+
+      let months = 0;
+      const anchorDay = lastAnniversary.getDate();
+      let monthDate = new Date(lastAnniversary);
+      let nextMonthDate = new Date(lastAnniversary);
+      nextMonthDate.setMonth(nextMonthDate.getMonth() + 1);
+      if (nextMonthDate.getDate() !== anchorDay) nextMonthDate.setDate(0);
+      while (nextMonthDate <= now) {
+        months++;
+        monthDate = new Date(nextMonthDate);
+        nextMonthDate = new Date(lastAnniversary);
+        nextMonthDate.setMonth(nextMonthDate.getMonth() + months + 1);
+        if (nextMonthDate.getDate() !== anchorDay) nextMonthDate.setDate(0);
+      }
+
+      let remainingMs = now - monthDate;
+      const days    = Math.floor(remainingMs / 86400000); remainingMs %= 86400000;
+      const hours   = Math.floor(remainingMs / 3600000);  remainingMs %= 3600000;
+      const minutes = Math.floor(remainingMs / 60000);    remainingMs %= 60000;
+      const seconds = Math.floor(remainingMs / 1000);
+
+      return { years, months, days, hours, minutes, seconds };
+    }
+
+    function pad(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    function tick() {
+      const now = new Date();
+      const e = calcElapsed(START_DATE, now);
+      document.getElementById('u-total-days').textContent = Math.floor((now - START_DATE) / 86400000).toLocaleString();
+      document.getElementById('u-years').textContent  = pad(e.years);
+      document.getElementById('u-months').textContent = pad(e.months);
+      document.getElementById('u-days').textContent   = pad(e.days);
+      document.getElementById('u-hours').textContent  = pad(e.hours);
+      document.getElementById('u-mins').textContent   = pad(e.minutes);
+      document.getElementById('u-secs').textContent   = pad(e.seconds);
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  </script>
+</body>
+</html>
+
+
+
+
